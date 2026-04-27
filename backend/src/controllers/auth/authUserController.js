@@ -1,4 +1,4 @@
-import User from '../../models/user/userModel.js';
+import User from '../../models/authUser/authUserModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendEmail } from '../../services/email/emailService.js';
@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
 
         //send OTP to email
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY, { expiresIn: '10m' });
-        sendEmail(email, token);
+        sendEmail(email, token); //send OTP to email
 
         newUser.token = token;
         await newUser.save();
