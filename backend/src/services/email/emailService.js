@@ -1,7 +1,8 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
-export const sendEmail = (email, otp) => {
+export const sendOtpEmail = async (email, otp) => {
+    
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -19,14 +20,9 @@ export const sendEmail = (email, otp) => {
             text: `Your OTP for registration is: ${otp}. It will expire in 10 minutes.`
         }
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.error('Error sending email:', error);
-            }
-            else {
-                console.log('Email sent:', info.response);
-            }
-        });
+        await transporter.sendMail(mailOptions);
+        console.log('✅ Email sent successfully');
+
 
     } catch (error) {
         console.error('Error sending email:', error);
