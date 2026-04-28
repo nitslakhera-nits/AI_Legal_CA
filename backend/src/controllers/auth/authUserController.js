@@ -2,6 +2,7 @@ import User from '../../models/authUser/authUserModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendOtpEmail } from '../../services/email/emailService.js';
+import { generateToken } from '../../utils/generateToken.js';
 
 export const registerUser = async (req, res) => {
     try {
@@ -34,7 +35,7 @@ export const registerUser = async (req, res) => {
         await sendOtpEmail(email, otp);
 
         res.status(201).json({
-            message: "Registered. Please verify OTP.", user: newUser
+            message: "Registered. Please verify OTP."
         });
 
     } catch (error) {
@@ -92,7 +93,9 @@ export const LoginUser = async (req, res) => {
                 return res.status(400).json({ message: "Invalid role" });
             }
 
-            res.status(200).json({ message: "Login successful" , user: {
+            const token = generateToken(userExists)
+
+            res.status(200).json({ message: "Login successful" ,token, user: {
                 id: userExists._id,
                 firstName: userExists.firstName,
                 lastName: userExists.lastName,

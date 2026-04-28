@@ -12,7 +12,10 @@ const app = express(); // Create an instance of the Express application
 app.use(express.json()); // Middleware to parse JSON bodies from incoming requests
 
 
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+    origin: 'http://localhost:5173', // Allow requests from this origin (your frontend)
+    credentials: true, // Allow cookies to be sent with requests
+})); // Enable CORS for all routes
 app.use(bodyParser.json()); // Parse incoming JSON requests
 
 // Import and use user routes
