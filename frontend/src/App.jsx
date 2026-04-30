@@ -8,9 +8,9 @@ import Dashbaord from './pages/dashboard/Dashbaord';
 const App = () => {
   return (
     <>
-      <Navbar />
+
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<> <Navbar /><LandingPage /></>} />
         <Route path="/dashboard" element={<Dashbaord />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

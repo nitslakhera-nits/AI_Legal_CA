@@ -5,8 +5,10 @@ import { sendOtpEmail } from '../../services/email/emailService.js';
 import { generateToken } from '../../utils/generateToken.js';
 import { createUser } from '../../services/auth/authService.js';
 import { sendResponse } from '../../utils/apiResponse.js';
-import { asyncHandler } from '../../middleware/asyncHandler.js';
+import {
+    asyncHandler
 
+} from '../../middleware/asyncHandler.js';
 export const registerUser = asyncHandler(async (req, res) => {
 
     const { firstName, lastName, email, role, password } = req.body;
@@ -48,38 +50,58 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 });
 
 export const LoginUser = asyncHandler(async (req, res) => {
-    
-        const { email, password, role } = req.body;
 
-        //check user exists or not
-        const userExists = await User.findOne({ email });
-        if (!userExists) {
-            res.status(404);
-            throw new Error("User not found");
-        }
+    const { email, password, role, isLoggedIn } = req.body;
 
-        // Check if the user is verified
-        if (!userExists.isVerified) {
-            res.status(400);
-            throw new Error("Please verify your email before logging in");
-        }
+    //check user exists or not
+    const userExists = await User.findOne({ email });
+    if (!userExists) {
+        res.status(404);
+        throw new Error("User not found");
+    }
 
-        //check password
-        const isPasswordValid = await bcrypt.compare(password, userExists.password);
-        if (!isPasswordValid) {
-            res.status(400);
-            throw new Error("Invalid password");
-        }
+    // Check if the user is verified
+    if (!userExists.isVerified) {
+        res.status(400);
+        throw new Error("Please verify your email before logging in");
+    }
 
-        //check role
-        if (userExists.role !== role) {
-            res.status(400);
-            throw new Error("Invalid role");
-        }
+    //check password
+    const isPasswordValid = await bcrypt.compare(password, userExists.password);
+    if (!isPasswordValid) {
+        res.status(400);
+        throw new Error("Invalid password");
+    }
 
-        const token = generateToken(userExists)
-        sendResponse(res, 200, true, "Login successful", { token, userExists });
+    //check role
+    if (userExists.role !== role) {
+        res.status(400);
+        throw new Error("Invalid role");
+    }
+
+    //token
+    const newToken = generateToken(userExists);
+
+    userExists.token = newToken;
+    userExists.isLoggedIn = true;
+
+    await userExists.save();
+
+    sendResponse(res, 200, true, "Login successful", { token: newToken, userExists });
 
 
-   
+
+});
+
+export const LogOutUser = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+    user.token = null;
+    user.isLoggedIn = false;
+    await user.save();
+    sendResponse(res, 200, true, "Logout successful");
 });

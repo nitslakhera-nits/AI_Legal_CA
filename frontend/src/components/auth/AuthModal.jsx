@@ -42,12 +42,26 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                 toast(res.data.message);
                 setCurrentView('otp');
             }
+            else {
+                toast("User with this email already exists.");
+            }
             console.log('Registration successful:', res.data);
         } catch (error) {
             console.error('Error during registration:', error);
+            toast("All fields are required.");
         }
 
     }
+
+    const resetRegisterForm = () => {
+        setFormData({
+            firstName: "",
+            lastName: "",
+            email: "",
+            role: "",
+            password: "",
+        });
+    };
 
     //-------------------------------------
 
@@ -74,6 +88,10 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
             console.error('Error during OTP verification:', error);
         }
     }
+
+    const resetOtpForm = () => {
+        setOtp("");
+    };
 
 
     //----------------------------------
@@ -121,13 +139,33 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
         }
 
     }
+
+    const resetLoginForm = () => {
+        setLoginForm({
+            email: "",
+            role: "",
+            password: "",
+        });
+    };
     // ---------------------------------------
+
+
+
+
+
 
     useEffect(() => {
         if (view) {
             setCurrentView(view);
         }
+
     }, [view]);
+
+    useEffect(() => {
+        if (currentView === 'register') resetRegisterForm();
+        if (currentView === 'otp') resetOtpForm();
+        if (currentView === 'login') resetLoginForm();
+    }, [currentView]);
 
     if (!isOpen) return null;
 
@@ -151,6 +189,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                 {/* ================= OTP VIEW ================= */}
                 {currentView === 'otp' ? (
                     <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
+
                         <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
 
                         <p className="text-sm text-gray-500">
@@ -172,6 +211,8 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                             Verify OTP
                         </button>
                     </form>
+
+
                 ) : currentView === 'login' ? (
 
                     /* ================= LOGIN ================= */
