@@ -33,7 +33,7 @@ export const Navbar = ({ user }) => {
                         >
                             Login
                         </button>
-                        <button
+                        {/* <button
                             onClick={() => {
                                 setAuthView('register');
                                 setAuthModalOpen(true)
@@ -41,7 +41,7 @@ export const Navbar = ({ user }) => {
                             className="bg-white text-purple-500  px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500 hover:text-white cursor-pointer"
                         >
                             Register
-                        </button>
+                        </button> */}
 
                     </div>
                 </div>

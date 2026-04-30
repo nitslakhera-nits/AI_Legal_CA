@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export const AuthModal = ({ isOpen, onClose, view }) => {
     const [currentView, setCurrentView] = useState(view);
@@ -37,8 +38,9 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
             });
 
             if (res.data.success) {
-                alert('Registration successful! Please check your email for verification.');
-                onClose(); // Close the modal after successful registration
+                setEmailForOtp(formData.email);
+                toast(res.data.message);
+                setCurrentView('otp');
             }
             console.log('Registration successful:', res.data);
         } catch (error) {
@@ -48,6 +50,33 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
     }
 
     //-------------------------------------
+
+    //----------OTP Form----------------
+    const [otp, setOtp] = useState("");
+    const [emailForOtp, setEmailForOtp] = useState("");
+
+    const submitOtpHandler = async (e) => {
+        e.preventDefault();
+        console.log({ emailForOtp, otp });
+        try {
+            const res = await axios.post(`http://localhost:3000/user/verify-otp`, {
+                email: emailForOtp,
+                otp
+            },
+
+            );
+            if (res.data.success) {
+                console.log('OTP verification successful:', res.data);
+                toast(res.data.message);
+                setCurrentView('login');
+            }
+        } catch (error) {
+            console.error('Error during OTP verification:', error);
+        }
+    }
+
+
+    //----------------------------------
 
     // --------------Login Form----------------
     const navigate = useNavigate();
@@ -80,7 +109,10 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
 
             if (res.data.success) {
                 console.log('Login successful:', res.data);
-                navigate('/');
+
+                navigate('/dashboard');
+                toast(res.data.message);
+                onClose();
 
             }
             console.log('Login successful:', res.data);
@@ -92,7 +124,9 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
     // ---------------------------------------
 
     useEffect(() => {
-        setCurrentView(view);
+        if (view) {
+            setCurrentView(view);
+        }
     }, [view]);
 
     if (!isOpen) return null;
@@ -114,7 +148,33 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                     ✕
                 </button>
 
-                {currentView === 'login' ? (
+                {/* ================= OTP VIEW ================= */}
+                {currentView === 'otp' ? (
+                    <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
+                        <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
+
+                        <p className="text-sm text-gray-500">
+                            OTP sent to {emailForOtp}
+                        </p>
+
+                        <input
+                            type="text"
+                            placeholder="Enter OTP"
+                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                        />
+
+                        <button
+                            type="submit"
+                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
+                        >
+                            Verify OTP
+                        </button>
+                    </form>
+                ) : currentView === 'login' ? (
+
+                    /* ================= LOGIN ================= */
                     <form onSubmit={submitLoginHandler} className="w-full flex flex-col gap-4">
                         <h2 className="text-xl font-bold text-gray-800">Sign In</h2>
 
@@ -126,7 +186,6 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                             value={loginForm.email}
                             onChange={handleLoginChange}
                         />
-
 
                         <div className="relative w-full">
                             <input
@@ -151,14 +210,17 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                             )}
                         </div>
 
-                        <select name='role' value={loginForm.role} onChange={handleLoginChange} className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm">
-                            <option value="" disabled >Select Profession</option>
+                        <select
+                            name='role'
+                            value={loginForm.role}
+                            onChange={handleLoginChange}
+                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
+                        >
+                            <option value="" disabled>Select Profession</option>
                             <option value='ca'>CA</option>
                             <option value='advocate'>Advocate</option>
                             <option value='hybrid'>Hybrid</option>
                         </select>
-
-
 
                         <button
                             type="submit"
@@ -167,9 +229,13 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                             Login
                         </button>
                     </form>
+
                 ) : (
+
+                    /* ================= REGISTER ================= */
                     <form onSubmit={submitHandler} className="w-full flex flex-col gap-4">
                         <h2 className="text-xl font-bold text-gray-800">Create Account</h2>
+
                         <div className='flex justify-center items-center gap-4'>
                             <input
                                 type="text"
@@ -186,10 +252,8 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                                 name='lastName'
                                 value={formData.lastName}
                                 onChange={handleChange}
-
                             />
                         </div>
-
 
                         <input
                             type="email"
@@ -200,8 +264,13 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                             onChange={handleChange}
                         />
 
-                        <select name='role' value={formData.role} onChange={handleChange} className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm">
-                            <option value="" disabled >Select Profession</option>
+                        <select
+                            name='role'
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
+                        >
+                            <option value="" disabled>Select Profession</option>
                             <option value='ca'>CA</option>
                             <option value='advocate'>Advocate</option>
                             <option value='hybrid'>Hybrid</option>
@@ -239,7 +308,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                     </form>
                 )}
 
-                {/* Switch View */}
+                {/* SWITCH */}
                 <div className="text-sm text-gray-500 text-center">
                     {currentView === 'login' ? (
                         <>
@@ -252,7 +321,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                                 Sign Up
                             </button>
                         </>
-                    ) : (
+                    ) : currentView === 'register' ? (
                         <>
                             Already have an account?{' '}
                             <button
@@ -263,7 +332,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
                                 Sign In
                             </button>
                         </>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div>

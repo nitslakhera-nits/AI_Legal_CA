@@ -3,108 +3,83 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendOtpEmail } from '../../services/email/emailService.js';
 import { generateToken } from '../../utils/generateToken.js';
+import { createUser } from '../../services/auth/authService.js';
+import { sendResponse } from '../../utils/apiResponse.js';
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
-export const registerUser = async (req, res) => {
-    try {
-        const { firstName, lastName, email, role, password } = req.body;
+export const registerUser = asyncHandler(async (req, res) => {
 
-        if (!firstName || !lastName || !email || !role || !password) {
-            return res.status(400).json({ message: "All fields required" });
-        }
+    const { firstName, lastName, email, role, password } = req.body;
 
+    if (!firstName || !lastName || !email || !role || !password) {
+        res.status(400);
+        throw new Error("All fields are required");
+    }
+
+    const { user, otp } = await createUser(req.body)
+
+    await sendOtpEmail(email, otp);
+
+    sendResponse(res, 201, true, "Registered. Please verify OTP.");
+
+});
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    if (user.otp !== otp || !user.otpExpiresAt || user.otpExpiresAt < Date.now()) {
+        res.status(400);
+        throw new Error("Invalid or expired OTP");
+    }
+
+    user.isVerified = true;
+    user.otp = null;
+    user.otpExpiresAt = null;
+    await user.save();
+    sendResponse(res, 200, true, "OTP verified successfully. You can now log in.");
+
+});
+
+export const LoginUser = asyncHandler(async (req, res) => {
+    
+        const { email, password, role } = req.body;
+
+        //check user exists or not
         const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ success: false, message: 'User with this email already exists' });
+        if (!userExists) {
+            res.status(404);
+            throw new Error("User not found");
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        const newUser = new User({
-            firstName,
-            lastName,
-            email,
-            role,
-            password: hashedPassword,
-            otp,
-            otpExpiry: Date.now() + 10 * 60 * 1000
-        });
-
-        await newUser.save();
-        await sendOtpEmail(email, otp);
-
-        res.status(201).json({
-            message: "Registered. Please verify OTP."
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-export const verifyOtp = async (req, res) => {
-    try {
-        const {email , otp} = req.body;
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        // Check if the user is verified
+        if (!userExists.isVerified) {
+            res.status(400);
+            throw new Error("Please verify your email before logging in");
         }
 
-        if(user.otp !== otp || user.otpExpiry < Date.now()) {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
+        //check password
+        const isPasswordValid = await bcrypt.compare(password, userExists.password);
+        if (!isPasswordValid) {
+            res.status(400);
+            throw new Error("Invalid password");
         }
 
-        user.isVerified = true;
-        user.otp = null;
-        user.otpExpiry = null;
-        await user.save();
-        res.status(200).json({ message: "OTP verified successfully" });
-        
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+        //check role
+        if (userExists.role !== role) {
+            res.status(400);
+            throw new Error("Invalid role");
+        }
 
-export const LoginUser = async (req, res) => {
-    try {
-            const { email ,password , role} = req.body;
+        const token = generateToken(userExists)
+        sendResponse(res, 200, true, "Login successful", { token, userExists });
 
-            //check user exists or not
-            const userExists = await User.findOne({ email });
-            if(!userExists){
-                return res.status(404).json({ message: "User not found" });
-            }
 
-            // Check if the user is verified
-            if(!userExists.isVerified){
-                return res.status(400).json({ message: "Please verify your email first" });
-            }
-
-            //check password
-            const isPasswordValid = await bcrypt.compare(password, userExists.password);
-            if(!isPasswordValid){
-                return res.status(400).json({ message: "Invalid password" });
-            }
-
-            //check role
-            if(userExists.role !== role){
-                return res.status(400).json({ message: "Invalid role" });
-            }
-
-            const token = generateToken(userExists)
-
-            res.status(200).json({ message: "Login successful" ,token, user: {
-                id: userExists._id,
-                firstName: userExists.firstName,
-                lastName: userExists.lastName,
-                email: userExists.email,
-                role: userExists.role
-            } });
-
-        
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+   
+});
