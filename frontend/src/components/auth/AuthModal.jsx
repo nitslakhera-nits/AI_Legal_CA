@@ -188,29 +188,29 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
 
                 {/* ================= OTP VIEW ================= */}
                 {currentView === 'otp' ? (
-                    <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
+                        <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
 
-                        <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
+                            <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
 
-                        <p className="text-sm text-gray-500">
-                            OTP sent to {emailForOtp}
-                        </p>
+                            <p className="text-sm text-gray-500">
+                                OTP sent to {emailForOtp}
+                            </p>
 
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                        />
+                            <input
+                                type="text"
+                                placeholder="Enter OTP"
+                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                            />
 
-                        <button
-                            type="submit"
-                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                        >
-                            Verify OTP
-                        </button>
-                    </form>
+                            <button
+                                type="submit"
+                                className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
+                            >
+                                Verify OTP
+                            </button>
+                        </form>
 
 
                 ) : currentView === 'login' ? (
