@@ -1,11 +1,13 @@
 import User from '../../models/authUser/authUserModel.js';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { sendOtpEmail } from '../../services/email/emailService.js';
+import { sendOtpEmail, sendResetPasswordEmail } from '../../services/email/emailService.js';
 import { generateAccessToken, generateRefreshToken } from '../../utils/generateToken.js';
 import { createUser } from '../../services/auth/authService.js';
 import { sendResponse } from '../../utils/apiResponse.js';
 import { asyncHandler } from '../../middleware/asyncHandler.js';
+import generateOtp from '../../utils/generateOtp.js';
 
 
 export const registerUser = asyncHandler(async (req, res) => {
@@ -46,6 +48,77 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     await user.save();
     sendResponse(res, 200, true, "OTP verified successfully. You can now log in.");
 
+});
+
+export const resendOtp = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+    if (user.isVerified) {
+        res.status(400);
+        throw new Error("User already verified");
+    }
+
+    const otp = generateOtp();
+    user.otp = otp;
+    user.otpExpiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+
+    await user.save();
+    await sendOtpEmail(email, otp);
+
+    sendResponse(res, 200, true, "OTP resent successfully");
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const userExists = await User.findOne({ email });
+    if (!userExists) {
+        res.status(404);
+        return sendResponse(res, 200, true, "If email exists, link sent.");
+    }
+    if (!userExists.isVerified) {
+        res.status(400);
+        return sendResponse(res, 200, true, "Please verify your email before resetting password", { email });
+    }
+
+    // Generate reset token and save to user document
+    const token = crypto.randomBytes(20).toString('hex');
+    userExists.resetPasswordToken = token; // Store token in user document
+    userExists.resetPasswordExpiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes expiry
+
+    await userExists.save();
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`; // Generate reset link with token
+    await sendResetPasswordEmail(email, resetLink); // Send reset link via email
+
+    // Send reset link via email
+    await sendResponse(res, 200, true, "Reset Link sent ", { token, resetLink: resetLink });
+
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpiresAt: { $gt: Date.now() } // Check if token is not expired
+    });
+    if (!user) {
+        res.status(400);
+        throw new Error("Invalid or expired reset password token");
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpiresAt = null;
+    await user.save();
+
+    sendResponse(res, 200, true, "Password reset successful");
 });
 
 export const LoginUser = asyncHandler(async (req, res) => {
@@ -110,7 +183,7 @@ export const LoginUser = asyncHandler(async (req, res) => {
         role: userExists.role,
     };
 
-    sendResponse(res, 200, true, "Login successful", { user: userData  });
+    sendResponse(res, 200, true, "Login successful", { user: userData });
 
 
 

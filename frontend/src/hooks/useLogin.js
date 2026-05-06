@@ -1,31 +1,53 @@
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/services/authService"
+import { loginUser } from "../api/services/authService";
 
 export const useLogin = () => {
     const navigate = useNavigate();
 
-    const handleLogin = async (loginForm, onclose, toast) => {
+    // ✅ 2 extra parameters add kiye
+    const handleLogin = async (loginForm, onclose, toast, setEmailForOtp, setCurrentView) => {
+
+        if (!loginForm.email || !loginForm.password || !loginForm.role) {
+            toast.error("All fields are required");
+            return;
+        }
+
         try {
             const res = await loginUser(loginForm);
-            // console.log(res);
 
             if (res.data.success) {
                 const { user, message } = res.data;
-
                 localStorage.setItem("userRole", user.role);
-                toast.success(message || " Login Successful");
+                toast.success(message || "Login Successful");
                 navigate("/dashboard");
                 onclose();
-            }
-            else {
+            } else {
                 toast.error(res.data.message || "Invalid credentials");
             }
 
         } catch (error) {
-            // console.error(error);
-            toast.error("All fields are required");
-        }
+            const message = error.response?.data?.message;
 
+            if (message === "User not found") {
+                toast.error("No account found with this email");
+
+            } else if (message === "Please verify your email before logging in") {
+                // ✅ Toast nahi — OTP view open karo
+                toast.info("Please verify your email first");
+                setEmailForOtp(loginForm.email);   // ← email set karo
+                setCurrentView('otp');              // ← otp view pe bhejo
+
+            } else if (message === "Invalid password") {
+                toast.error("Incorrect password");
+
+            } else if (message === "Invalid role") {
+                toast.error("Selected role does not match your account");
+
+            } else {
+                toast.error(message || "Login failed. Please try again");
+            }
+        }
     };
+
     return handleLogin;
 }

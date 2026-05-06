@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../../models/authUser/authUserModel.js";
 import jwt from "jsonwebtoken";
+import generateOtp from "../../utils/generateOtp.js";
 
 export const createUser = async (data) => {
     const { firstName, lastName, email, role, password } = data;
@@ -13,7 +14,7 @@ export const createUser = async (data) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = generateOtp();
 
     const newUser = new User({
         firstName,
