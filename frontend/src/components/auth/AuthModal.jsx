@@ -3,10 +3,17 @@ import { Eye, EyeOff } from 'lucide-react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { API_ENDPOINTS } from '../../api/endpoints.js';
+import { useLogin } from '../../hooks/useLogin.js';
+import { useRegister } from '../../hooks/useRegister.js';
+import { useVerifyOtp } from '../../hooks/useverifyotp.js';
 
 export const AuthModal = ({ isOpen, onClose, view }) => {
     const [currentView, setCurrentView] = useState(view);
     const [showPassword, setShowPassword] = useState(false);
+    const register = useRegister();
+    const verifyOtp = useVerifyOtp();
+    const login = useLogin();
 
     //--------- Register Form----------------
     const [formData, setFormData] = useState({
@@ -28,28 +35,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
     const submitHandler = async (e) => {
         e.preventDefault();
         console.log(formData);
-        // Handle form submission logic here (e.g., API calls)
-        try {
-            const res = await axios.post(`http://localhost:3000/user/register`, formData, {
-                headers: {
-                    "Content-Type": "application/json"
-
-                }
-            });
-
-            if (res.data.success) {
-                setEmailForOtp(formData.email);
-                toast(res.data.message);
-                setCurrentView('otp');
-            }
-            else {
-                toast("User with this email already exists.");
-            }
-            console.log('Registration successful:', res.data);
-        } catch (error) {
-            console.error('Error during registration:', error);
-            toast("All fields are required.");
-        }
+        register(formData , setEmailForOtp, setCurrentView , toast);
 
     }
 
@@ -72,21 +58,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
     const submitOtpHandler = async (e) => {
         e.preventDefault();
         console.log({ emailForOtp, otp });
-        try {
-            const res = await axios.post(`http://localhost:3000/user/verify-otp`, {
-                email: emailForOtp,
-                otp
-            },
-
-            );
-            if (res.data.success) {
-                console.log('OTP verification successful:', res.data);
-                toast(res.data.message);
-                setCurrentView('login');
-            }
-        } catch (error) {
-            console.error('Error during OTP verification:', error);
-        }
+        verifyOtp({ email: emailForOtp, otp }, setCurrentView, toast);
     }
 
     const resetOtpForm = () => {
@@ -115,29 +87,7 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
 
     const submitLoginHandler = async (e) => {
         e.preventDefault();
-        console.log(loginForm);
-        // Handle form submission logic here (e.g., API calls)
-        try {
-            const res = await axios.post(`http://localhost:3000/user/login`, loginForm, {
-                headers: {
-                    "Content-Type": "application/json"
-
-                }
-            });
-
-            if (res.data.success) {
-                console.log('Login successful:', res.data);
-
-                navigate('/dashboard');
-                toast(res.data.message);
-                onClose();
-
-            }
-            console.log('Login successful:', res.data);
-        } catch (error) {
-            console.error('Error during registration:', error);
-        }
-
+        login(loginForm, onClose, toast);
     }
 
     const resetLoginForm = () => {
@@ -188,29 +138,29 @@ export const AuthModal = ({ isOpen, onClose, view }) => {
 
                 {/* ================= OTP VIEW ================= */}
                 {currentView === 'otp' ? (
-                        <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
+                    <form onSubmit={submitOtpHandler} className="w-full flex flex-col gap-4">
 
-                            <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
+                        <h2 className="text-xl font-bold text-gray-800">Verify OTP</h2>
 
-                            <p className="text-sm text-gray-500">
-                                OTP sent to {emailForOtp}
-                            </p>
+                        <p className="text-sm text-gray-500">
+                            OTP sent to {emailForOtp}
+                        </p>
 
-                            <input
-                                type="text"
-                                placeholder="Enter OTP"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                            />
+                        <input
+                            type="text"
+                            placeholder="Enter OTP"
+                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                        />
 
-                            <button
-                                type="submit"
-                                className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                            >
-                                Verify OTP
-                            </button>
-                        </form>
+                        <button
+                            type="submit"
+                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
+                        >
+                            Verify OTP
+                        </button>
+                    </form>
 
 
                 ) : currentView === 'login' ? (

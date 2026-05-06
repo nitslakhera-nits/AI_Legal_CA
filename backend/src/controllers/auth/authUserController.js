@@ -2,13 +2,12 @@ import User from '../../models/authUser/authUserModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sendOtpEmail } from '../../services/email/emailService.js';
-import { generateToken } from '../../utils/generateToken.js';
+import { generateAccessToken, generateRefreshToken } from '../../utils/generateToken.js';
 import { createUser } from '../../services/auth/authService.js';
 import { sendResponse } from '../../utils/apiResponse.js';
-import {
-    asyncHandler
+import { asyncHandler } from '../../middleware/asyncHandler.js';
 
-} from '../../middleware/asyncHandler.js';
+
 export const registerUser = asyncHandler(async (req, res) => {
 
     const { firstName, lastName, email, role, password } = req.body;
@@ -51,7 +50,7 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
 export const LoginUser = asyncHandler(async (req, res) => {
 
-    const { email, password, role, isLoggedIn } = req.body;
+    const { email, password, role } = req.body;
 
     //check user exists or not
     const userExists = await User.findOne({ email });
@@ -80,14 +79,38 @@ export const LoginUser = asyncHandler(async (req, res) => {
     }
 
     //token
-    const newToken = generateToken(userExists);
+    const accessToken = generateAccessToken(userExists);
+    const refreshToken = generateRefreshToken(userExists);
 
-    userExists.token = newToken;
+    // Save refresh token in database
+    userExists.refreshToken = refreshToken;
+
     userExists.isLoggedIn = true;
-
     await userExists.save();
 
-    sendResponse(res, 200, true, "Login successful", { token: newToken, userExists });
+    //set cookies for access and refresh tokens
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000 // 15 min for access token expiration
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days for refresh token expiration
+    });
+
+    // Send user data in response
+    const userData = {
+        _id: userExists._id,
+        email: userExists.email,
+        role: userExists.role,
+    };
+
+    sendResponse(res, 200, true, "Login successful", { user: userData  });
 
 
 
@@ -100,8 +123,21 @@ export const LogOutUser = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("User not found");
     }
-    user.token = null;
+    user.refreshToken = null;
     user.isLoggedIn = false;
     await user.save();
+
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    });
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    });
+
     sendResponse(res, 200, true, "Logout successful");
 });

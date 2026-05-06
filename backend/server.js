@@ -5,6 +5,7 @@ import bodyParser from 'body-parser'; // body-parser is middleware used to read 
 import connectDB from './src/config/database/db.js';
 import userRoute from './src/routes/auth/authRoute.js'
 import { errorHandler } from './src/middleware/errorMiddleware.js';
+import cookieParser from 'cookie-parser';
 
 
 const PORT = process.env.PORT || 3001; // Use PORT from environment variables or default to 3001
@@ -17,7 +18,10 @@ app.use(cors({
     origin: 'http://localhost:5173', // Allow requests from this origin (your frontend)
     credentials: true, // Allow cookies to be sent with requests
 })); // Enable CORS for all routes
+
 app.use(bodyParser.json()); // Parse incoming JSON requests
+
+app.use(cookieParser()); // Middleware to parse cookies from incoming requests
 
 // Import and use user routes
 app.use('/user' , userRoute)

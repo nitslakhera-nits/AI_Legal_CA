@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    token: {
+    refreshToken: {
         type: String,
         default: null
     },
@@ -44,12 +44,16 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
 
     createdAt: {
         type: Date,
         default: Date.now
     }
 
-} ,{ timestamps: true });
+}, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

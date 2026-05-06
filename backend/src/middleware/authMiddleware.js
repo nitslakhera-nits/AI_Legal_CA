@@ -2,8 +2,9 @@ import jwt from 'jsonwebtoken';
 import { asyncHandler } from './asyncHandler.js';
 import User from '../models/authUser/authUserModel.js';
 
+
 export const authMiddleware = asyncHandler(async (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies.accessToken;
 
     if (!token) {
         res.status(401);
@@ -18,11 +19,6 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
         if (!user) {
             res.status(404);
             throw new Error("User not found");
-        }
-
-        if (user.token !== token) {
-            res.status(401);
-            throw new Error("Token expired or replaced");
         }
 
         req.user = {
