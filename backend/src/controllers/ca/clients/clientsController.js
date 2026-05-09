@@ -1,0 +1,70 @@
+import { asyncHandler } from "../../../middleware/asyncHandler.js";
+import Client from "../../../models/ca/clients/clientModel.js";
+import createClient from "../../../services/ca/clientServices.js";
+import { sendResponse } from "../../../utils/apiResponse.js";
+
+
+export const registerClient = asyncHandler(async (req, res) => {
+    const { firstName, lastName, email, phone, panCardNo, aadharNumber, address } = req.body;
+
+    if (!firstName || !lastName || !email || !phone || !panCardNo || !aadharNumber || !address) {
+        res.status(400);
+        throw new Error("All fields are required");
+    }
+
+    await createClient(req.body);
+
+    sendResponse(res, 201, true, "Client Added");
+
+});
+
+export const getAllClients = asyncHandler(async (req, res) => {
+    const clients = await Client.find().sort({ createdAt: -1 });
+    sendResponse(res, 200, true, "Clients Fetched Successfully", clients);
+});
+
+export const getByIdClient = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const clientId = await Client.findById(id).lean();
+    console.log(clientId);
+    if (!clientId) {
+        res.status(404);
+        throw new Error("Client Not Found");
+    }
+
+    sendResponse(res, 200, true, " single Client data fetch successfully", clientId);
+})
+
+export const updateClient = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const updatedClients = await Client.findByIdAndUpdate(
+        id,
+        req.body,
+        {
+           returnDocument: "after", // update hone ke baad wala latest document return karo.
+            runValidators:true 
+        }
+    );
+
+    if(!updateClient){
+        res.status(404);
+        throw new Error("Client Not Found");
+    }
+
+    sendResponse(res, 200 ,true , "Client Updated Successafully" , updateClient);
+
+
+})
+
+export const deleteClient = asyncHandler(async(req ,res) =>{
+    const { id } = req.params;
+    const deleteClient = await Client.findByIdAndDelete(id);
+
+    if(!deleteClient){
+        res.status(404);
+        throw new Error("Client Not Found");
+    }
+
+    sendResponse(res , 200 , true , "Client Deleted SuccessFully");
+});

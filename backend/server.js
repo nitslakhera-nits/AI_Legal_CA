@@ -6,6 +6,7 @@ import connectDB from './src/config/database/db.js';
 import userRoute from './src/routes/auth/authRoute.js'
 import { errorHandler } from './src/middleware/errorMiddleware.js';
 import cookieParser from 'cookie-parser';
+import clientRoute from './src/routes/ca/client/clientRoute.js'
 
 
 const PORT = process.env.PORT || 3001; // Use PORT from environment variables or default to 3001
@@ -25,6 +26,7 @@ app.use(cookieParser()); // Middleware to parse cookies from incoming requests
 
 // Import and use user routes
 app.use('/user' , userRoute)
+app.use('/client', clientRoute);
 
 app.use(errorHandler); // Use the error handling middleware
 

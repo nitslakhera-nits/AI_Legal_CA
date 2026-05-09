@@ -1,545 +1,84 @@
-import { useEffect, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react'
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-
-import { useLogin } from '../../hooks/useLogin.js';
-import { useRegister } from '../../hooks/useRegister.js';
-import { useVerifyOtp } from '../../hooks/useverifyotp.js';
-import { useResendOtp } from '../../hooks/useResendOtp.js';
-import { useForgotPassword } from '../../hooks/useForgotPassword.js';
+// src/components/auth/AuthModal.jsx
+import { useState, useEffect } from 'react';
+import { LoginForm } from './LoginForm';
+import { RegisterForm } from './RegisterForm';
+import { OtpForm } from './OtpForm';
+import { ForgotPasswordForm } from './ForgotPasswordForm';
 
 export const AuthModal = ({ isOpen, onClose, view }) => {
 
     const [currentView, setCurrentView] = useState(view || 'login');
-    const [showPassword, setShowPassword] = useState(false);
+    const [emailForOtp, setEmailForOtp] = useState('');
 
-    const register = useRegister();
-    const verifyOtp = useVerifyOtp();
-    const login = useLogin();
-    const resendOtp = useResendOtp();
-    const forgotPassword = useForgotPassword();
+    // view prop change hone pe sync karo
+    useEffect(() => {
+        if (view) setCurrentView(view);
+    }, [view]);
 
-    const navigate = useNavigate();
-
-    // ================= REGISTER FORM =================
-
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        role: "",
-        password: "",
-    });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const submitHandler = async (e) => {
-        e.preventDefault();
-
-        register(
-            formData,
-            setEmailForOtp,
-            setCurrentView,
-            toast
-        );
-    };
-
-    // ================= OTP FORM =================
-
-    const [otp, setOtp] = useState("");
-    const [emailForOtp, setEmailForOtp] = useState("");
-
-    const submitOtpHandler = async (e) => {
-        e.preventDefault();
-
-        verifyOtp(
-            { email: emailForOtp, otp },
-            setCurrentView,
-            toast
-        );
-    };
-
-    // ================= LOGIN FORM =================
-
-    const [loginForm, setLoginForm] = useState({
-        email: "",
-        role: "",
-        password: "",
-    });
-
-    const handleLoginChange = (e) => {
-        const { name, value } = e.target;
-
-        setLoginForm((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const submitLoginHandler = async (e) => {
-        e.preventDefault();
-
-        login(
-            loginForm,
-            handleCloseModal,
-            toast,
-            setEmailForOtp,
-            setCurrentView
-        );
-    };
-
-    // ================= RESEND OTP =================
-
-    const [resendTimer, setResendTimer] = useState(0);
-    const [canResend, setCanResend] = useState(true);
-
-    const handleResendOtp = async (e) => {
-        e.preventDefault();
-
-        setCanResend(false);
-        setResendTimer(30);
-
-        await resendOtp(emailForOtp, toast);
-    };
-
-    // ================= FORGOT PASSWORD =================
-
-    const [forgotEmail, setForgotEmail] = useState("");
-
-    const submitForgotHandler = async (e) => {
-        e.preventDefault();
-
-        await forgotPassword(forgotEmail, toast);
-    };
-
-    // ================= RESET ALL FORMS =================
-
-    const resetAllForms = () => {
-
-        // register form
-        setFormData({
-            firstName: "",
-            lastName: "",
-            email: "",
-            role: "",
-            password: "",
-        });
-
-        // login form
-        setLoginForm({
-            email: "",
-            role: "",
-            password: "",
-        });
-
-        // otp form
-        setOtp("");
-        setEmailForOtp("");
-
-        // forgot password
-        setForgotEmail("");
-
-        // extra states
-        setShowPassword(false);
-        setResendTimer(0);
-        setCanResend(true);
-
-        // reset view
+    const handleClose = () => {
         setCurrentView(view || 'login');
-    };
-
-    // ================= MODAL CLOSE =================
-
-    const handleCloseModal = () => {
-        resetAllForms();
+        setEmailForOtp('');
         onClose();
     };
 
-    // ================= EFFECTS =================
-
-    useEffect(() => {
-        if (view) {
-            setCurrentView(view);
-        }
-    }, [view]);
-
-    // resend timer
-    useEffect(() => {
-
-        if (resendTimer <= 0) {
-            setCanResend(true);
-            return;
-        }
-
-        const interval = setInterval(() => {
-            setResendTimer((prev) => prev - 1);
-        }, 1000);
-
-        return () => clearInterval(interval);
-
-    }, [resendTimer]);
-
     if (!isOpen) return null;
+
+    // Switch + Sign up / Sign in footer text
+    const switchText = {
+        login: { msg: "Don't have an account?", label: 'Sign Up', to: 'register' },
+        register: { msg: 'Already have an account?', label: 'Sign In', to: 'login' },
+    };
 
     return (
         <div
             className="fixed inset-0 bg-white/15 flex items-center justify-center z-[2000]"
-            onClick={handleCloseModal}
+            onClick={handleClose}
         >
-
             <div
                 className="bg-white rounded-[14px] max-w-[380px] w-[90%] p-8 relative flex flex-col items-center gap-4"
                 onClick={(e) => e.stopPropagation()}
             >
-
                 {/* CLOSE BUTTON */}
-
-                <button
-                    onClick={handleCloseModal}
-                    className="absolute top-3 right-3 text-2xl cursor-pointer text-gray-500"
-                >
+                <button onClick={handleClose}
+                    className="absolute top-3 right-3 text-2xl cursor-pointer text-gray-500">
                     ✕
                 </button>
 
-                {/* ================= FORGOT PASSWORD ================= */}
-
-                {currentView === 'forgot' ? (
-
-                    <>
-                        <form
-                            onSubmit={submitForgotHandler}
-                            className="w-full flex flex-col gap-4"
-                        >
-
-                            <h2 className="text-xl font-bold text-gray-800">
-                                Forgot Password
-                            </h2>
-
-                            <p className="text-sm text-gray-500">
-                                Enter your registered email, we'll send you a reset link.
-                            </p>
-
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                                value={forgotEmail}
-                                onChange={(e) => setForgotEmail(e.target.value)}
-                            />
-
-                            <button
-                                type="submit"
-                                className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                            >
-                                Send Reset Link
-                            </button>
-
-                        </form>
-
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setForgotEmail("");
-                                setCurrentView('login');
-                            }}
-                            className="text-sm text-purple-500 underline cursor-pointer text-center"
-                        >
-                            Back to Login
-                        </button>
-                    </>
-
-                ) : currentView === 'otp' ? (
-
-                    /* ================= OTP ================= */
-
-                    <form
-                        onSubmit={submitOtpHandler}
-                        className="w-full flex flex-col gap-4"
-                    >
-
-                        <h2 className="text-xl font-bold text-gray-800">
-                            Verify OTP
-                        </h2>
-
-                        <p className="text-sm text-gray-500">
-                            OTP sent to {emailForOtp}
-                        </p>
-
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                        />
-
-                        <button
-                            type="submit"
-                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                        >
-                            Verify OTP
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={handleResendOtp}
-                            disabled={!canResend}
-                            className={`w-full px-3 py-2.5 rounded-lg text-sm font-semibold transition
-                            ${canResend
-                                    ? 'border border-purple-500 text-purple-500 cursor-pointer hover:bg-purple-50'
-                                    : 'border border-gray-200 text-gray-400 cursor-not-allowed'
-                                }`}
-                        >
-                            {canResend
-                                ? 'Resend OTP'
-                                : `Resend in ${resendTimer}s`}
-                        </button>
-
-                    </form>
-
-                ) : currentView === 'login' ? (
-
-                    /* ================= LOGIN ================= */
-
-                    <form
-                        onSubmit={submitLoginHandler}
-                        className="w-full flex flex-col gap-4"
-                    >
-
-                        <h2 className="text-xl font-bold text-gray-800">
-                            Sign In
-                        </h2>
-
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                            name="email"
-                            value={loginForm.email}
-                            onChange={handleLoginChange}
-                        />
-
-                        <div className="relative w-full">
-
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="Enter Your Password"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm pr-10"
-                                value={loginForm.password}
-                                onChange={handleLoginChange}
-                            />
-
-                            {showPassword ? (
-                                <EyeOff
-                                    onClick={() => setShowPassword(false)}
-                                    className="w-5 h-5 text-gray-700 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                                />
-                            ) : (
-                                <Eye
-                                    onClick={() => setShowPassword(true)}
-                                    className="w-5 h-5 text-gray-700 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                                />
-                            )}
-
-                        </div>
-
-                        <select
-                            name='role'
-                            value={loginForm.role}
-                            onChange={handleLoginChange}
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                        >
-                            <option value="" disabled>
-                                Select Profession
-                            </option>
-
-                            <option value='ca'>CA</option>
-                            <option value='advocate'>Advocate</option>
-                            <option value='hybrid'>Hybrid</option>
-                        </select>
-
-                        <button
-                            type="submit"
-                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                        >
-                            Login
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setLoginForm({
-                                    email: "",
-                                    role: "",
-                                    password: "",
-                                });
-
-                                setCurrentView('forgot');
-                            }}
-                            className="text-sm text-purple-500 underline cursor-pointer text-center"
-                        >
-                            Forgot Password?
-                        </button>
-
-                    </form>
-
-                ) : (
-
-                    /* ================= REGISTER ================= */
-
-                    <form
-                        onSubmit={submitHandler}
-                        className="w-full flex flex-col gap-4"
-                    >
-
-                        <h2 className="text-xl font-bold text-gray-800">
-                            Create Account
-                        </h2>
-
-                        <div className='flex justify-center items-center gap-4'>
-
-                            <input
-                                type="text"
-                                placeholder="First Name"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                                name='firstName'
-                                value={formData.firstName}
-                                onChange={handleChange}
-                            />
-
-                            <input
-                                type="text"
-                                placeholder="Last Name"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                                name='lastName'
-                                value={formData.lastName}
-                                onChange={handleChange}
-                            />
-
-                        </div>
-
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                            name='email'
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-
-                        <select
-                            name='role'
-                            value={formData.role}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm"
-                        >
-                            <option value="" disabled>
-                                Select Profession
-                            </option>
-
-                            <option value='ca'>CA</option>
-                            <option value='advocate'>Advocate</option>
-                            <option value='hybrid'>Hybrid</option>
-                        </select>
-
-                        <div className="relative w-full">
-
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="Create Your Password"
-                                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm pr-10"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-
-                            {showPassword ? (
-                                <EyeOff
-                                    onClick={() => setShowPassword(false)}
-                                    className="w-5 h-5 text-gray-700 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                                />
-                            ) : (
-                                <Eye
-                                    onClick={() => setShowPassword(true)}
-                                    className="w-5 h-5 text-gray-700 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-                                />
-                            )}
-
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="w-full px-3 py-2.5 rounded-lg bg-purple-500 text-white text-sm font-semibold cursor-pointer hover:bg-purple-600 transition"
-                        >
-                            Create Account
-                        </button>
-
-                    </form>
+                {/* FORM RENDERING */}
+                {currentView === 'login' && (
+                    <LoginForm
+                        onSuccess={handleClose}
+                        onSwitch={setCurrentView}
+                        setEmailForOtp={setEmailForOtp}
+                    />
+                )}
+                {currentView === 'register' && (
+                    <RegisterForm
+                        onSwitch={setCurrentView}
+                        setEmailForOtp={setEmailForOtp}
+                    />
+                )}
+                {currentView === 'otp' && (
+                    <OtpForm
+                        emailForOtp={emailForOtp}
+                        onSwitch={setCurrentView}
+                    />
+                )}
+                {currentView === 'forgot' && (
+                    <ForgotPasswordForm onSwitch={setCurrentView} />
                 )}
 
-                {/* ================= SWITCH ================= */}
-
-                <div className="text-sm text-gray-500 text-center">
-
-                    {currentView === 'login' ? (
-
-                        <>
-                            Don't have an account?{' '}
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setLoginForm({
-                                        email: "",
-                                        role: "",
-                                        password: "",
-                                    });
-
-                                    setCurrentView('register');
-                                }}
-                                className="text-purple-500 font-semibold underline cursor-pointer"
-                            >
-                                Sign Up
-                            </button>
-                        </>
-
-                    ) : currentView === 'register' ? (
-
-                        <>
-                            Already have an account?{' '}
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setFormData({
-                                        firstName: "",
-                                        lastName: "",
-                                        email: "",
-                                        role: "",
-                                        password: "",
-                                    });
-
-                                    setCurrentView('login');
-                                }}
-                                className="text-purple-500 font-semibold underline cursor-pointer"
-                            >
-                                Sign In
-                            </button>
-                        </>
-
-                    ) : null}
-
-                </div>
-
+                {/* SWITCH FOOTER */}
+                {switchText[currentView] && (
+                    <div className="text-sm text-gray-500 text-center">
+                        {switchText[currentView].msg}{' '}
+                        <button type="button"
+                            onClick={() => setCurrentView(switchText[currentView].to)}
+                            className="text-purple-500 font-semibold underline cursor-pointer">
+                            {switchText[currentView].label}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
