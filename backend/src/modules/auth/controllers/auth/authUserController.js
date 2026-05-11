@@ -190,7 +190,7 @@ export const LoginUser = asyncHandler(async (req, res) => {
 });
 
 export const LogOutUser = asyncHandler(async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const user = await User.findById(userId);
     if (!user) {
         res.status(404);

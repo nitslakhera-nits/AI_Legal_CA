@@ -27,7 +27,6 @@ app.use(cookieParser()); // Middleware to parse cookies from incoming requests
 
 // Import and use user routes
 app.use('/user', userRoute)
-//-----------CA ------------
 // client routing
 app.use('/client', clientRoute);
 //client documets
