@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import User from "../../models/authUser/authUserModel.js";
+import User from "../../models/authUserModel.js";
 import jwt from "jsonwebtoken";
-import generateOtp from "../../utils/generateOtp.js";
+import generateOtp from "../../../../utils/generateOtp.js";
 
 export const createUser = async (data) => {
     const { firstName, lastName, email, role, password } = data;

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from './asyncHandler.js';
-import User from '../models/authUser/authUserModel.js';
+import User from '../modules/auth/models/authUserModel.js';
 
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {
@@ -20,9 +20,8 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
             res.status(404);
             throw new Error("User not found");
         }
-
         req.user = {
-            id: user._id,
+            _id: user._id,
             role: user.role
         };
 

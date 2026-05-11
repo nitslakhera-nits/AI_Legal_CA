@@ -1,8 +1,8 @@
-import Client from '../../models/ca/clients/clientModel.js';
+import Client from '../models/clientModel.js';
 
 const createClient = async (data) => {
 
-  const { firstName, lastName, email, phone, panCardNo, aadharNumber, address } = data;
+  const { userId, firstName, lastName, email, phone, panCardNo, aadharNumber, address } = data;
 
   const clientExists = await Client.findOne({ panCardNo });
   if (clientExists) {
@@ -10,10 +10,11 @@ const createClient = async (data) => {
   }
 
   const newClient = new Client({
-    firstName, lastName, email, phone, panCardNo, aadharNumber, address,
+    userId, firstName, lastName, email, phone, panCardNo, aadharNumber, address,
   });
 
   await newClient.save();
+  return newClient;
 }
 
 export default createClient;

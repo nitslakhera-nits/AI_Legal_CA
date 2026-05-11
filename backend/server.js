@@ -3,10 +3,11 @@ import cors from 'cors'; //Allows frontend (React, Vite, etc.) to talk to backen
 import 'dotenv/config'; // store and manage environment variables
 import bodyParser from 'body-parser'; // body-parser is middleware used to read data coming from client request body (like form data or JSON).
 import connectDB from './src/config/database/db.js';
-import userRoute from './src/routes/auth/authRoute.js'
 import { errorHandler } from './src/middleware/errorMiddleware.js';
 import cookieParser from 'cookie-parser';
-import clientRoute from './src/routes/ca/client/clientRoute.js'
+import userRoute from '../backend/src/modules/auth/routes/authRoute.js';
+import clientRoute from '../backend/src/modules/shared/client/routes/clientRoute.js'
+import clientDocsRoute from '../backend/src/modules/shared/document/routes/clientDocsRoute.js'
 
 
 const PORT = process.env.PORT || 3001; // Use PORT from environment variables or default to 3001
@@ -21,12 +22,20 @@ app.use(cors({
 })); // Enable CORS for all routes
 
 app.use(bodyParser.json()); // Parse incoming JSON requests
-
 app.use(cookieParser()); // Middleware to parse cookies from incoming requests
 
+
 // Import and use user routes
-app.use('/user' , userRoute)
+app.use('/user', userRoute)
+//-----------CA ------------
+// client routing
 app.use('/client', clientRoute);
+//client documets
+app.use('/document', clientDocsRoute);
+
+//------------------------------
+
+
 
 app.use(errorHandler); // Use the error handling middleware
 

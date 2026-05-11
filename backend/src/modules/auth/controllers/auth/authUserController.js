@@ -1,13 +1,13 @@
-import User from '../../models/authUser/authUserModel.js';
+import User from '../../models/authUserModel.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { sendOtpEmail, sendResetPasswordEmail } from '../../services/email/emailService.js';
-import { generateAccessToken, generateRefreshToken } from '../../utils/generateToken.js';
+import { generateAccessToken, generateRefreshToken } from '../../../../utils/generateToken.js';
 import { createUser } from '../../services/auth/authService.js';
-import { sendResponse } from '../../utils/apiResponse.js';
-import { asyncHandler } from '../../middleware/asyncHandler.js';
-import generateOtp from '../../utils/generateOtp.js';
+import { sendResponse } from '../../../../utils/apiResponse.js';
+import { asyncHandler } from '../../../../middleware/asyncHandler.js';
+import generateOtp from '../../../../utils/generateOtp.js';
 
 
 export const registerUser = asyncHandler(async (req, res) => {
