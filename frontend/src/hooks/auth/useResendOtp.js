@@ -1,4 +1,4 @@
-import { resendOtp } from "../api/services/authService";
+import { resendOtp } from "../../api/services/authService";
 
 export const useResendOtp = () => {
     const handleResendOtp = async (otp, toast) => {

@@ -12,9 +12,18 @@ export const registerClient = asyncHandler(async (req, res) => {
         throw new Error("All fields are required");
     }
 
-    await createClient({ ...req.body, userId: req.user._id });
+    try {
 
-    sendResponse(res, 201, true, "Client Added");
+        await createClient({ ...req.body, userId: req.user._id });
+
+        sendResponse(res, 201, true, "Client Added");
+
+    } catch (error) {
+
+        res.status(400);
+
+        throw new Error(error.message);
+    }
 
 });
 
@@ -56,7 +65,7 @@ export const updateClient = asyncHandler(async (req, res) => {
         throw new Error("Client Not Found");
     }
 
-    sendResponse(res, 200, true, "Client Updated Successafully", updateClient);
+    sendResponse(res, 200, true, "Client Updated Successafully", updatedClients);
 
 
 })

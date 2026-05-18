@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { logoutUser } from "../api/services/authService";
+import { logoutUser } from "../../api/services/authService";
 import { toast } from "react-toastify";
 
 export const useLogout = () => {

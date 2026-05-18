@@ -1,4 +1,4 @@
-import { forgotPassword } from "../api/services/authService";
+import { forgotPassword } from "../../api/services/authService";
 
 export const useForgotPassword = () => {
     const handleForgotPassowrd = async (email, toast) => {

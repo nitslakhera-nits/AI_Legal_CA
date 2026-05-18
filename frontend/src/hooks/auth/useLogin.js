@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/services/authService";
+import { loginUser } from "../../api/services/authService";
 
 export const useLogin = () => {
     const navigate = useNavigate();
@@ -16,9 +16,10 @@ export const useLogin = () => {
             const res = await loginUser(loginForm);
 
             if (res.data.success) {
-                const { user, message } = res.data;
+                const { message, data } = res.data;
+                const user = data.user;
                 localStorage.setItem("userRole", user.role);
-                toast.success(message || "Login Successful");
+                toast.success(message || "Login successful");
                 navigate("/dashboard");
                 onclose();
             } else {

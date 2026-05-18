@@ -1,18 +1,38 @@
-// src/components/sidebar/Sidebar.jsx
+
+
 import { useState } from "react";
+import { ROLES } from "../../utils/constants/roles";
+import caSidebar from "./sidebarConfig/caSidebar";
+import advocateSidebar from "./sidebarConfig/advocateSidebar";
+import hybridSidebar from "./sidebarConfig/hybridSidebar";
+import useRole from "../../hooks/auth/useRole";
+import SidebarItem from "./SidebarItem";
 import LogoutButton from "../logout/LogoutButton";
 
-const navItems = [
-  { label: "Overview", active: true },
-  { label: "Analytics", active: false },
-  { label: "Reports", active: false },
-  { label: "Users", active: false },
-  { label: "Products", active: false },
-  { label: "Messages", active: false },
-];
 
 export default function Sidebar({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const role = useRole();
+
+  let navItems = [];
+
+  switch (role) {
+    case ROLES.CA:
+      navItems = caSidebar;
+      break;
+
+    case ROLES.ADVOCATE:
+      navItems = advocateSidebar;
+      break;
+
+    case ROLES.HYBRID:
+      navItems = hybridSidebar;
+      break;
+
+    default:
+      navItems = [];
+  }
 
   return (
     <div className="flex h-screen">
@@ -22,18 +42,14 @@ export default function Sidebar({ children }) {
           width: collapsed ? "72px" : "240px",
           background:
             "linear-gradient(180deg, oklch(0.24 0.05 265.05), oklch(0.21 0.04 260.05))",
-          borderRight: "1px solid oklch(0.36 0.04 260.05)",
         }}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-4 py-5">
-          <div className="w-9 h-9 rounded-xl bg-purple-500 flex items-center justify-center">
-            <img src="./LegalMind.png" alt="logo" className="w-5 h-5" />
-          </div>
-
+          <img src="/LegalMind.png" alt="LegalMind Logo" className="w-9 h-9 rounded-xl object-cover" />
           {!collapsed && (
             <span className="text-lg text-white font-bold">
-              Legal<span className="text-purple-400">Mind</span>
+              LegalMind
             </span>
           )}
         </div>
@@ -41,37 +57,24 @@ export default function Sidebar({ children }) {
         {/* Toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-7 w-6 h-6 rounded-full bg-purple-500 text-white"
+          className="absolute -right-3 top-7 w-6 h-6 rounded-full cursor-pointer bg-purple-500 text-white"
         >
           ⇄
         </button>
 
-        {/* Nav */}
+        {/* Navigation */}
         <nav className="flex-1 px-2 space-y-1">
           {navItems.map((item) => (
-            <button
+            <SidebarItem
               key={item.label}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl"
-              style={{
-                justifyContent: collapsed ? "center" : "flex-start",
-                color: item.active ? "#c084fc" : "#9ca3af",
-                background: item.active
-                  ? "rgba(192, 132, 252, 0.15)"
-                  : "transparent",
-              }}
-            >
-              {/* Dummy icon */}
-              <div className="w-5 h-5 bg-gray-400 rounded-sm"></div>
-
-              {!collapsed && <span>{item.label}</span>}
-            </button>
+              item={item}
+              collapsed={collapsed}
+            />
           ))}
         </nav>
-
-        {/* Bottom Section */}
         <div className="p-3 border-t border-gray-700 space-y-2">
           {/* User */}
-          <div className="flex items-center gap-3 px-2">
+          {/* <div className="flex items-center gap-3 px-2">
             <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-white">
               R
             </div>
@@ -82,14 +85,16 @@ export default function Sidebar({ children }) {
                 <p className="text-xs text-gray-400">Admin</p>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Logout */}
           <LogoutButton collapsed={collapsed} />
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto">
+        {children}
+      </main>
     </div>
   );
 }

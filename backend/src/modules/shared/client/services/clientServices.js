@@ -4,16 +4,28 @@ const createClient = async (data) => {
 
   const { userId, firstName, lastName, email, phone, panCardNo, aadharNumber, address } = data;
 
-  const clientExists = await Client.findOne({ panCardNo });
+  // same user duplicate check
+  const clientExists = await Client.findOne({ panCardNo, userId });
+
   if (clientExists) {
-    throw new Error(" User with this Pan Card already exists");
+
+    new Error("Client already exists");
+    
   }
 
   const newClient = new Client({
-    userId, firstName, lastName, email, phone, panCardNo, aadharNumber, address,
+    userId,
+    firstName,
+    lastName,
+    email,
+    phone,
+    panCardNo,
+    aadharNumber,
+    address,
   });
 
   await newClient.save();
+
   return newClient;
 }
 

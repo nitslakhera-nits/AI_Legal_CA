@@ -1,4 +1,4 @@
-import { registerUser } from "../api/services/authService"
+import { registerUser } from "../../api/services/authService"
 
 
 export const useRegister = () => {

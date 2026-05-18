@@ -1,6 +1,6 @@
 import { asyncHandler } from "../../../../middleware/asyncHandler.js";
 import client from "../../client/models/clientModel.js";
-import { deleteDocuemnt, getAllDocuments, getSingleDocument, updateDocumnt, uploadDocs, uploadMultipleDocs } from "../services/documentService.js";
+import { deleteDocument, getAllDocuments, getClientDocuments, getSingleDocument, updateDocumnt, uploadDocs, uploadMultipleDocs } from "../services/documentService.js";
 import { sendResponse } from "../../../../utils/apiResponse.js";
 
 //create docs file form
@@ -28,21 +28,31 @@ export const getAllDocs = asyncHandler(async (req, res) => {
 
 //GET SINGLE DOCUMENT
 export const getSingleDocs = asyncHandler(async (req, res) => {
-    const document = await getSingleDocument(req.params.id);
+    const document = await getSingleDocument(req.params.id, req.user._id);
 
     sendResponse(res, 201, true, "Document Fetched", document.toObject());
 });
 
+//GET CLIENT DOCUMENT
+export const getClientDocs = asyncHandler(
+    async (req, res) => {
+
+        const documents = await getClientDocuments(req.params.clientId, req.user._id);
+
+        sendResponse(res, 200, true, "Client Documents Fetched", documents);
+    }
+);
+
 //UPADATE DOCUMENT
 export const updateDocs = asyncHandler(async (req, res) => {
-    const document = await updateDocumnt(req.params.id, req.body);
+    const document = await updateDocumnt(req.params.id, req.body, req.user._id);
 
     sendResponse(res, 200, true, "Document Updated", document);
 });
 
 //DELETE DOCUMENT
 export const deleteDocs = asyncHandler(async (req, res) => {
-    await deleteDocuemnt(req.params.id);
+    await deleteDocument(req.params.id, req.user._id);
 
     sendResponse(res, 200, true, "Document Deleted");
 });

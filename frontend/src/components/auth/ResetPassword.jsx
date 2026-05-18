@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff } from 'lucide-react';
-import { useResetPassword } from '../../hooks/useResetPassword';
+import { useResetPassword } from '../../hooks/auth/useResetPassword';
 
 export const ResetPassword = () => {
     const { token } = useParams();

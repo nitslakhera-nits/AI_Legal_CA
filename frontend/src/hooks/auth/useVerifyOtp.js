@@ -1,4 +1,4 @@
-import { verifyOtp } from "../api/services/authService"
+import { verifyOtp } from "../../api/services/authService"
 
 export const useVerifyOtp = () => {
     const handleVerifyOtp = async (otpData, setView, toast) => {

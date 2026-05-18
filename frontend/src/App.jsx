@@ -1,23 +1,8 @@
-import { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { LandingPage } from './pages/LandingPage';
-import { Navbar } from './components/navbar/Navbar';
-import DashboardLayout from './layouts/DashboardLayout';
-import { ResetPassword } from './components/auth/ResetPassword';
-
+import React from 'react'
+import AppRoutes from './app/routes/AppRoutes'
 
 const App = () => {
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<><Navbar /><LandingPage /></>} />
-        <Route path="/dashboard" element={<DashboardLayout />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
-  );
+  return <AppRoutes />
+}
 
-};
-
-export default App;
+export default App

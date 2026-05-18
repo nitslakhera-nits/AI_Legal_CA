@@ -1,7 +1,7 @@
 // src/components/auth/ForgotPasswordForm.jsx
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useForgotPassword } from '../../hooks/useForgotPassword';
+import { useForgotPassword } from '../../hooks/auth/useForgotPassword';
 
 export const ForgotPasswordForm = ({ onSwitch }) => {
 

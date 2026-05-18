@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AuthModal } from '../auth/AuthModal';
 
 export const Navbar = ({ user }) => {

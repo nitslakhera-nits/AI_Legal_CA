@@ -1,4 +1,5 @@
-import User from '../../models/authUserModel.js';
+// import User from '../../../../models/authUser/authUserModel.js';
+import User from '../../models/authUserModel.js'
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -189,16 +190,49 @@ export const LoginUser = asyncHandler(async (req, res) => {
 
 });
 
-export const LogOutUser = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
-    const user = await User.findById(userId);
-    if (!user) {
-        res.status(404);
-        throw new Error("User not found");
+//refreshAccessToken
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+        res.status(401);
+        throw new Error("Refresh token not found");
     }
-    user.refreshToken = null;
-    user.isLoggedIn = false;
-    await user.save();
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.refreshToken !== refreshToken) {
+        res.status(401);
+        throw new Error("Invalid Refresh token");
+    }
+
+    const newAccessToken = generateAccessToken(user);
+    res.cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000
+    });
+    sendResponse(res, 200, true, "Access token refreshed");
+})
+
+export const LogOutUser = asyncHandler(async (req, res) => {
+
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+
+        const user = await User.findOne({ refreshToken });
+
+        if (user) {
+
+            user.refreshToken = null;
+            user.isLoggedIn = false;
+
+            await user.save();
+        }
+    }
 
     res.clearCookie("accessToken", {
         httpOnly: true,

@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from './asyncHandler.js';
-import User from '../modules/auth/models/authUserModel.js';
-
+// import User from '../models/authUser/authUserModel.js';
+import User from '../modules/auth/models/authUserModel.js'
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {
+    // console.log(req.cookies);
     const token = req.cookies.accessToken;
+    // console.log(token);
 
     if (!token) {
         res.status(401);

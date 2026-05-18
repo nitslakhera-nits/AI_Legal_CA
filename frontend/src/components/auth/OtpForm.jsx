@@ -1,8 +1,8 @@
 // src/components/auth/OtpForm.jsx
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useVerifyOtp } from '../../hooks/useverifyotp';
-import { useResendOtp } from '../../hooks/useResendOtp';
+import { useVerifyOtp } from '../../hooks/auth/useVerifyOtp';
+import { useResendOtp } from '../../hooks/auth/useResendOtp';
 
 export const OtpForm = ({ emailForOtp, onSwitch }) => {
 

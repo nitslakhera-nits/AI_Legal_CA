@@ -1,4 +1,4 @@
-import { resetPassword } from "../api/services/authService";
+import { resetPassword } from "../../api/services/authService";
 
 
 export const useResetPassword = () => {
