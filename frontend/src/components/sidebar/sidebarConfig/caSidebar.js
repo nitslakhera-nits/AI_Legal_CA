@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 
 const caSidebar = [
-     {
+    {
         label: "AI assistant",
-        path: "/ai-assistant",
+        path: "/dashboard/ai-assistant",
         icon: Sparkles,
     },
     {

@@ -1,5 +1,3 @@
-// src/components/document/DynamicDocumentForm.jsx
-
 const DynamicDocumentForm = ({
     fields,
     formData,
@@ -8,9 +6,17 @@ const DynamicDocumentForm = ({
 
     const handleChange = (e) => {
 
+        const { name, value } = e.target;
+
+        // PAN NUMBER AUTO UPPERCASE
+        const updatedValue =
+            name === "panNumber"
+                ? value.toUpperCase()
+                : value;
+
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value,
+            [name]: updatedValue,
         });
     };
 
@@ -24,28 +30,15 @@ const DynamicDocumentForm = ({
                     <div key={field.name}>
 
                         <label className="block mb-2 text-gray-700 font-medium">
-
                             {field.label}
-
                         </label>
 
                         <input
-                            type="text"
+                            type={field.type || "text"}
                             name={field.name}
                             value={formData[field.name] || ""}
                             onChange={handleChange}
-                            className="
-                            w-full
-                            border
-                            border-gray-200
-                            rounded-2xl
-                            p-4
-                            outline-none
-                            focus:border-purple-500
-                            focus:ring-4
-                            focus:ring-purple-100
-                            transition-all
-                            "
+                            className="w-full border border-gray-200 rounded-2xl p-4 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all"
                         />
 
                     </div>

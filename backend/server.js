@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import userRoute from '../backend/src/modules/auth/routes/authRoute.js';
 import clientRoute from '../backend/src/modules/shared/client/routes/clientRoute.js'
 import clientDocsRoute from '../backend/src/modules/shared/document/routes/clientDocsRoute.js'
+import { authMiddleware } from './src/middleware/authMiddleware.js';
 
 
 const PORT = process.env.PORT || 3001; // Use PORT from environment variables or default to 3001
@@ -28,9 +29,9 @@ app.use(cookieParser()); // Middleware to parse cookies from incoming requests
 // Import and use user routes
 app.use('/user', userRoute)
 // client routing
-app.use('/client', clientRoute);
+app.use('/client', authMiddleware, clientRoute);
 //client documets
-app.use('/document', clientDocsRoute);
+app.use('/document', authMiddleware, clientDocsRoute);
 
 //------------------------------
 

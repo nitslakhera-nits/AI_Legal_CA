@@ -14,7 +14,7 @@ export const DOCUMENT_FIELDS = {
         { name: "fullName", label: "Full Name", type: "text" },
         { name: "fatherName", label: "Father Name", type: "text" },
         { name: "panNumber", label: "PAN Number", type: "text" },
-        { name: "dob", label: "Date of Birth", type: "text" },
+        { name: "dob", label: "Date of Birth", type: "date" },
     ],
 
     GST: [

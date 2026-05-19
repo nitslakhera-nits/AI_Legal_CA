@@ -19,6 +19,7 @@ export const useLogin = () => {
                 const { message, data } = res.data;
                 const user = data.user;
                 localStorage.setItem("userRole", user.role);
+                localStorage.setItem("token", data.token);
                 toast.success(message || "Login successful");
                 navigate("/dashboard");
                 onclose();
