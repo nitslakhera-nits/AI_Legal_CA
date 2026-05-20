@@ -5,7 +5,12 @@ import { sendResponse } from "../../../../utils/apiResponse.js";
 
 
 export const registerClient = asyncHandler(async (req, res) => {
-    
+    const { firstName, lastName, email, phone, panCardNo, aadharNumber, address } = req.body;
+
+    if (!firstName || !lastName || !email || !phone || !panCardNo || !aadharNumber || !address) {
+        res.status(400);
+        throw new Error("All fields are required");
+    }
 
     try {
 

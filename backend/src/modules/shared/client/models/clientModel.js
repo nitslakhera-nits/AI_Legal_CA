@@ -3,6 +3,7 @@ import Document from "../../document/models/clientDocsModel.js";
 import cloudinary from "../../../../utils/cloudinary.js";
 
 const clientSchema = new mongoose.Schema({
+
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -54,33 +55,35 @@ const clientSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// same user duplicate Aadhaar add nahi kar payega
+
+// UNIQUE INDEXES
 clientSchema.index(
     { userId: 1, panCardNo: 1 },
     { unique: true }
 );
 
-// same user duplicate Aadhaar add nahi kar payega
 clientSchema.index(
     { userId: 1, aadharNumber: 1 },
     { unique: true }
 );
 
-clientSchema.pre("findOneAndDelete", async function (next) {
 
-    try {
+// CASCADE DELETE
+clientSchema.post(
+    "findOneAndDelete",
+    async function (client) {
 
-        // delete hone wala client
-        const client = await this.model.findOne(this.getFilter());
+        try {
 
-        if (client) {
+            // agar client exist nahi karta
+            if (!client) return;
 
-            // client ke saare docs fetch karo
+            // client ke documents fetch karo
             const documents = await Document.find({
                 clientId: client._id
             });
 
-            // cloudinary se images delete karo
+            // cloudinary images delete
             for (const doc of documents) {
 
                 if (doc.public_id) {
@@ -91,18 +94,16 @@ clientSchema.pre("findOneAndDelete", async function (next) {
                 }
             }
 
-            // mongo db se docs delete karo
+            // mongoDB documents delete
             await Document.deleteMany({
                 clientId: client._id
             });
+
+        } catch (error) {
+
+            console.log("Cascade Delete Error:",error);
         }
-
-        next();
-
-    } catch (error) {
-
-        next(error);
     }
-});
+);
 
 export default mongoose.model("Client", clientSchema);
