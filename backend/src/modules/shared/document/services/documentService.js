@@ -36,6 +36,11 @@ export const uploadDocs = async (req) => {
         public_id = uploadedFile.public_id; //Cloudinary ki unique id .
     }
 
+    //Duplicate document type for same client check
+    const existingDocument = await Document.findOne({ clientId, documentType, uploadedBy: req.user._id });
+    if (existingDocument) {
+        throw new Error(`${documentType} already uploaded for this client`);
+    }
 
     const document = await Document.create({
         clientId,
@@ -61,6 +66,15 @@ export const uploadMultipleDocs = async (req) => {
     const clientExists = await Client.findById(clientId);
     if (!clientExists) {
         throw new Error("Client Not Found");
+    }
+    const existingDocument = await Document.findOne({
+        clientId,
+        documentType,
+        uploadedBy: req.user._id
+    });
+
+    if (existingDocument) {
+        throw new Error(`${documentType} already uploaded for this client`);
     }
 
     const uploadedDocuments = [];

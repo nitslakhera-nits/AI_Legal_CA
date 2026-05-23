@@ -1,4 +1,4 @@
-import { asyncHandler } from "../../../../middleware/asyncHandler.js";
+import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
 import Client from "../models/clientModel.js";
 import createClient from "../services/clientServices.js";
 import { sendResponse } from "../../../../utils/apiResponse.js";

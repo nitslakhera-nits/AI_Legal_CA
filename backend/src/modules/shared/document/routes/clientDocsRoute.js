@@ -1,6 +1,5 @@
 import express from 'express'
-import { multipleUpload, singleUpload } from '../../../../middleware/multer.js';
-import { authMiddleware } from '../../../../middleware/authMiddleware.js';
+import { multipleUpload, singleUpload } from '../../../../middleware/upload/multer.js';
 import { deleteDocs, getAllDocs, getClientDocs, getSingleDocs, updateDocs, uploadDocument, uploadMultiDocument } from '../controllers/clientDocsUploadController.js';
 
 const router = express.Router();

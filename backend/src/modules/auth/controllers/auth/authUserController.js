@@ -7,7 +7,7 @@ import { sendOtpEmail, sendResetPasswordEmail } from '../../services/email/email
 import { generateAccessToken, generateRefreshToken } from '../../../../utils/generateToken.js';
 import { createUser } from '../../services/auth/authService.js';
 import { sendResponse } from '../../../../utils/apiResponse.js';
-import { asyncHandler } from '../../../../middleware/asyncHandler.js';
+import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
 import generateOtp from '../../../../utils/generateOtp.js';
 
 

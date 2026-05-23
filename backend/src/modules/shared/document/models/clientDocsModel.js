@@ -36,4 +36,9 @@ const documentSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+documentSchema.index(
+    { clientId: 1, documentType: 1 ,  uploadedBy: 1},
+    { unique: true }
+);
+
 export default mongoose.model('Document', documentSchema);

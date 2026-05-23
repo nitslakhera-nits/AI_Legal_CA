@@ -1,14 +1,29 @@
-import { asyncHandler } from "../../../../middleware/asyncHandler.js";
+import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
 import client from "../../client/models/clientModel.js";
 import { deleteDocument, getAllDocuments, getClientDocuments, getSingleDocument, updateDocumnt, uploadDocs, uploadMultipleDocs } from "../services/documentService.js";
 import { sendResponse } from "../../../../utils/apiResponse.js";
 
 //create docs file form
 export const uploadDocument = asyncHandler(async (req, res) => {
-    const document = await uploadDocs(req);
 
-    sendResponse(res, 201, true, "Documents Uploaded", document.toObject());
+    try {
 
+        const document = await uploadDocs(req);
+
+        sendResponse(
+            res,
+            201,
+            true,
+            "Documents Uploaded",
+            document.toObject()
+        );
+
+    } catch (error) {
+
+        res.status(400);
+
+        throw error;
+    }
 });
 
 export const uploadMultiDocument = asyncHandler(async (req, res) => {
