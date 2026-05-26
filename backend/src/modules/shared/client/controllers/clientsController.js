@@ -1,7 +1,7 @@
 import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
 import Client from "../models/clientModel.js";
 import createClient from "../services/clientServices.js";
-import { sendResponse } from "../../../../utils/apiResponse.js";
+import { sendResponse } from "../../../../utils/response/apiResponse.js";
 
 
 export const registerClient = asyncHandler(async (req, res) => {

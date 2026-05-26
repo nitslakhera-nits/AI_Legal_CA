@@ -1,7 +1,7 @@
 import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
 import client from "../../client/models/clientModel.js";
 import { deleteDocument, getAllDocuments, getClientDocuments, getSingleDocument, updateDocumnt, uploadDocs, uploadMultipleDocs } from "../services/documentService.js";
-import { sendResponse } from "../../../../utils/apiResponse.js";
+import { sendResponse } from "../../../../utils/response/apiResponse.js";
 
 //create docs file form
 export const uploadDocument = asyncHandler(async (req, res) => {

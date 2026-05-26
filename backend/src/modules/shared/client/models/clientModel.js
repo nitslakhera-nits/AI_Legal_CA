@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Document from "../../document/models/clientDocsModel.js";
-import cloudinary from "../../../../utils/cloudinary.js";
+import cloudinary from "../../../../config/cloudinary/cloudinary.js";
 
 const clientSchema = new mongoose.Schema({
 
