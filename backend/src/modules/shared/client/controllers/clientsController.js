@@ -34,7 +34,7 @@ export const getAllClients = asyncHandler(async (req, res) => {
 
 export const getByIdClient = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const clientId = await Client.findOne({ _id: id, userId: req.user._id }).lean();
+    const clientId = await Client.findOne({ _id: id, userId: req.user._id });
     console.log(clientId);
     if (!clientId) {
         res.status(404);
