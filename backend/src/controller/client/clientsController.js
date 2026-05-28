@@ -1,7 +1,7 @@
-import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
-import Client from "../models/clientModel.js";
-import createClient from "../services/clientServices.js";
-import { sendResponse } from "../../../../utils/response/apiResponse.js";
+import { asyncHandler } from '../../utils/handlers/asyncHandler.js';
+import Client from "../../models/client/clientModel.js";
+import createClient from "../../services/client/clientServices.js";
+import { sendResponse } from "../../utils/response/apiResponse.js";
 
 
 export const registerClient = asyncHandler(async (req, res) => {

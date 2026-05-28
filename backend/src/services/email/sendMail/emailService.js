@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import 'dotenv/config';
-import { resetPasswordTemplate } from '../../../../services/email/templates/resetPasswordTemplate.js';
+import { resetPasswordTemplate } from '../templates/resetPasswordTemplate.js';
 
 export const sendOtpEmail = async (email, otp) => {
 

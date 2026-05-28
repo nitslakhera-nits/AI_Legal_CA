@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 // import User from '../models/authUser/authUserModel.js';
-import User from '../../modules/auth/models/authUserModel.js'
+import User from '../../models/auth/authUserModel.js'
 import { asyncHandler } from '../../utils/handlers/asyncHandler.js';
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {

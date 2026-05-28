@@ -1,7 +1,7 @@
 
-import Document from "../models/clientDocsModel.js"
-import { uploadToCloudinary } from "../../../../services/cloudinaryService.js";
-import Client from "../../client/models/clientModel.js";
+import Document from "../../models/document/clientDocsModel.js"
+import { uploadToCloudinary } from "../cloudinary/cloudinaryService.js";
+import Client from "../../models/client/clientModel.js";
 
 //upload docs and client data
 export const uploadDocs = async (req) => {

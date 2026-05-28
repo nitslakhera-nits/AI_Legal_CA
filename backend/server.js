@@ -5,9 +5,10 @@ import bodyParser from 'body-parser'; // body-parser is middleware used to read 
 import connectDB from './src/config/database/db.js';
 import { errorHandler } from './src/middleware/error/errorMiddleware.js';
 import cookieParser from 'cookie-parser';
-import userRoute from '../backend/src/modules/auth/routes/authRoute.js';
-import clientRoute from '../backend/src/modules/shared/client/routes/clientRoute.js'
-import clientDocsRoute from '../backend/src/modules/shared/document/routes/clientDocsRoute.js'
+
+import userRoute from './src/routes/auth/authRoute.js';
+import clientRoute from './src/routes/client/clientRoute.js'
+import clientDocsRoute from './src/routes/document/clientDocsRoute.js'
 import { authMiddleware } from '../backend/src/middleware/index.js';
 
 const PORT = process.env.PORT || 3001; // Use PORT from environment variables or default to 3001

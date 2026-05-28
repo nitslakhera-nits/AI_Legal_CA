@@ -1,14 +1,13 @@
-// import User from '../../../../models/authUser/authUserModel.js';
-import User from '../../models/authUserModel.js'
+import User from '../../models/auth/authUserModel.js'
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { sendOtpEmail, sendResetPasswordEmail } from '../../services/email/emailService.js';
-import { generateAccessToken, generateRefreshToken } from '../../../../utils/tokens/generateToken.js';
-import { createUser } from '../../services/auth/authService.js';
-import { sendResponse } from '../../../../utils/response/apiResponse.js';
-import { asyncHandler } from '../../../../utils/handlers/asyncHandler.js';
-import generateOtp from '../../../../utils/otp/generateOtp.js';
+import { sendOtpEmail, sendResetPasswordEmail } from '../../services/email/sendMail/emailService.js';
+import { generateAccessToken, generateRefreshToken } from '../../utils/tokens/generateToken.js';
+import { createUser } from "../../services/auth/authService.js";
+import { sendResponse } from '../../utils/response/apiResponse.js';
+import { asyncHandler } from '../../utils/handlers/asyncHandler.js';
+import generateOtp from '../../utils/otp/generateOtp.js';
 
 
 export const registerUser = asyncHandler(async (req, res) => {
